@@ -11,6 +11,8 @@ import { ScrollView } from "react-native-gesture-handler";
 import RoomCard from "../components/RoomCard";
 import RoomList from "../components/RoomList";
 import RoomPage from "./RoomPage";
+import {RoomScreen} from './Rooms';
+
 
 const Stack = createStackNavigator();
 
@@ -33,14 +35,6 @@ const HomeScreen = ({ navigation }: StackScreenProps<StackHomeProps>) => {
       <RoomList rooms={featuredRooms}></RoomList>
     </ScrollView>
   );
-};
-
-const RoomScreen = ({
-  route,
-  navigation,
-}: StackScreenProps<StackHomeProps>) => {
-  const { id } = route.params;
-  return <RoomPage id={id}></RoomPage>;
 };
 
 const featuredRooms: Array<RoomCardProps> = [

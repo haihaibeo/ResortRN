@@ -16,7 +16,8 @@ const RoomPage = ({ id }: RoomPageProp) => {
 
 const styles = StyleSheet.create({
   container: {
-    alignContent: "center",
+    alignSelf: "center",
+    justifyContent: "center"
   },
 });
 

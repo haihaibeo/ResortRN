@@ -11,7 +11,9 @@ import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 
 import Home from "./pages/Home";
 import Rooms from "./pages/Rooms";
-import Propfile from './pages/Profile'
+import Propfile from "./pages/Profile";
+import Favorites from "./pages/Favorites";
+import { color } from "react-native-reanimated";
 
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -26,6 +28,12 @@ const getTabBarIcon = (name: string) => ({
 }) => <MaterialIcons name={name} color={color} size={size} />;
 
 export default function App() {
+  const [isLoading, setLoading] = React.useState<boolean>(true);
+
+  React.useEffect(() => {
+    //fetch('https://reactnative.dev/movies.json').then((response) => response.json).then((json) => json.movies)
+  });
+
   return (
     <NavigationContainer>
       <BottomTab.Navigator>
@@ -42,14 +50,14 @@ export default function App() {
           name="Rooms"
           component={Rooms}
           options={{
-            title: "Rooms",
-            tabBarIcon: getTabBarIcon("room"),
+            title: "All Rooms",
+            tabBarIcon: getTabBarIcon("search"),
           }}
         />
 
         <BottomTab.Screen
           name="Faverites"
-          component={Rooms}
+          component={Favorites}
           options={{
             title: "My faverites",
             tabBarIcon: getTabBarIcon("favorite"),
@@ -60,7 +68,7 @@ export default function App() {
           component={Propfile}
           options={{
             title: "My Profile",
-            tabBarIcon: getTabBarIcon("person"),
+            tabBarIcon: getTabBarIcon("settings"),
           }}
         />
       </BottomTab.Navigator>

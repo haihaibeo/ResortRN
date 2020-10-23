@@ -6,7 +6,7 @@ import {
   createStackNavigator,
   StackScreenProps,
 } from "@react-navigation/stack";
-import { Avatar, Button, Card, Title, Paragraph } from "react-native-paper";
+import { Avatar, Button, Card, Title, Paragraph, Searchbar } from "react-native-paper";
 import { ScrollView } from "react-native-gesture-handler";
 import RoomCard from "../components/RoomCard";
 import RoomPage from "./RoomPage";
@@ -31,22 +31,48 @@ export default class Home extends Component {
 }
 
 const RoomsScreen = ({ navigation }: StackScreenProps<StackRoomsProps>) => {
+  const [searchQuery, setSearchQuery] = React.useState<string>("");
+  const [Rooms, setRooms] = React.useState<Array<RoomCardProps>>(AllRooms);
+
+  const onChangeSearch = (query: string) => {
+    setSearchQuery(query);
+    if (query.trim().length === 0)
+      setRooms(AllRooms);
+    else
+      setRooms(findRoomsByName(query.trim()));
+  }
+
   return (
-    <ScrollView style={styles.container}>
-      <RoomList rooms={Rooms}></RoomList>
-    </ScrollView>
+    <React.Fragment>
+      <Searchbar placeholder="Search" value={searchQuery} onChangeText={text => onChangeSearch(text)}></Searchbar>
+      <ScrollView style={styles.container}>
+        <RoomList rooms={Rooms}></RoomList>
+      </ScrollView>
+    </React.Fragment>
   );
 };
 
-const RoomScreen = ({
+const findRoomsByName = (name: string) : Array<RoomCardProps> =>{
+  const found = AllRooms.filter(room => room.name.includes(name));
+  console.log(found.length);
+  return found;
+}
+
+export const RoomScreen = ({
   route,
   navigation,
 }: StackScreenProps<StackRoomsProps>) => {
-  const { id } = route.params;
+  const [newTitle, onChangeTitle] = React.useState<string|undefined>((route!.params as any).name);
+
+  navigation.setOptions({
+    title: newTitle === '' ? 'No title' : newTitle
+  })
+
+  const { id }: any = route.params;
   return <RoomPage id={id}></RoomPage>;
 };
 
-const Rooms: Array<RoomCardProps> = [
+const AllRooms: Array<RoomCardProps> = [
   {
     id: 1,
     name: "Room 1",
