@@ -1,5 +1,5 @@
 import React, { Children, Component } from "react";
-import { Button as BtnNative, StyleSheet, Text, View } from "react-native";
+import { Button as BtnNative, RefreshControl, StyleSheet, Text, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { NavigationContainer } from "@react-navigation/native";
 import {
@@ -11,61 +11,32 @@ import { ScrollView } from "react-native-gesture-handler";
 import RoomCard from "../components/RoomCard";
 import RoomList from "../components/RoomList";
 import RoomPage from "./RoomPage";
-import {RoomScreen} from './Rooms';
+import { RoomScreen } from './Rooms';
+import { RoomContext } from "../contexts/RoomContext";
 
 
 const Stack = createStackNavigator();
 
-type StackHomeProps = { Home: undefined; Room: undefined };
+type StackHomeProps = { rooms: FormatRoomData[] };
 
-export default class Home extends Component {
-  render() {
-    return (
-      <Stack.Navigator>
-        <Stack.Screen name="Home" component={HomeScreen}></Stack.Screen>
-        <Stack.Screen name="Room" component={RoomScreen}></Stack.Screen>
-      </Stack.Navigator>
-    );
-  }
+const Home = () => {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name="Featuring" component={HomeScreen}></Stack.Screen>
+      <Stack.Screen name="Room" component={RoomScreen} options={{ title: "" }}></Stack.Screen>
+    </Stack.Navigator>
+  );
 }
 
-const HomeScreen = ({ navigation }: StackScreenProps<StackHomeProps>) => {
-  return (
-    <ScrollView style={styles.container}>
-      <RoomList rooms={featuredRooms}></RoomList>
-    </ScrollView>
-  );
+const HomeScreen = () => {
+  const context = React.useContext(RoomContext);
+  return <RoomList rooms={context.states.featuredRooms}></RoomList>
 };
 
-const featuredRooms: Array<RoomCardProps> = [
-  {
-    id: 1,
-    name: "Featured room 1",
-    previewImageUri: "https://picsum.photos/705",
-    description: "This is description for feature room 1",
-  },
-  {
-    id: 2,
-    name: "Featured room 2",
-    previewImageUri: "https://picsum.photos/706",
-    description: "This is description for feature room 2",
-  },
-  {
-    id: 3,
-    name: "Featured room 3",
-    previewImageUri: "https://picsum.photos/707",
-    description: "This is description for feature room 3",
-  },
-];
+
 
 const styles = StyleSheet.create({
   container: {
-    alignContent: "center",
-    // marginTop: "5%",
-    backgroundColor: "lightgray",
-  },
-  card: {
-    marginTop: "5%",
-    backgroundColor: "lightyellow",
   },
 });
+export default Home;

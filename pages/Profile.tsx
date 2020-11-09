@@ -1,8 +1,8 @@
 import { StackActions } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import React, { useState } from "react";
-import { View, Text, StyleSheet } from "react-native";
-import { ScrollView } from "react-native-gesture-handler";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { ScrollView, TouchableHighlight } from "react-native-gesture-handler";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 
@@ -23,15 +23,21 @@ const Stack = createStackNavigator();
 
 const Setting = ({ setting, iconName }: SettingProps) => {
   return (
-    <View style={styles.settingContainer}>
-      <Icon name={iconName} size={25} style={{ marginRight: 10 }}></Icon>
-      <Text style={styles.textSetting}>{setting}</Text>
-      <Icon
-        name="navigate-next"
-        size={26}
-        style={{ marginLeft: "auto" }}
-      ></Icon>
-    </View>
+    <TouchableHighlight
+      activeOpacity={0.3}
+      onPress={() => alert("go to " + setting)}
+      underlayColor="light"
+    >
+      <View style={styles.settingContainer}>
+        <Icon name={iconName} size={25} style={{ marginRight: 10 }}></Icon>
+        <Text style={styles.textSetting}>{setting}</Text>
+        <Icon
+          name="navigate-next"
+          size={26}
+          style={{ marginLeft: "auto" }}
+        ></Icon>
+      </View>
+    </TouchableHighlight>
   );
 };
 

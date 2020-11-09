@@ -5,8 +5,10 @@ import { Card, Paragraph, Title, IconButton } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/FontAwesome";
 
-const LikeButton = () => {
+export const LikeButton = () => {
   const [icon, setIcon] = useState<string>("heart-outline");
+  // TODO: setup snackbar for like button
+  //const [snackBarVisible, setSnackBarVisible] = React.useState(false);
 
   const handleLikePress = () => {
     console.log("like clicked");
@@ -19,7 +21,7 @@ const LikeButton = () => {
   );
 };
 
-const ShareButton = () => {
+export const ShareButton = () => {
   const handleSharePress = () => {
     alert("go to share");
   };
@@ -27,7 +29,8 @@ const ShareButton = () => {
     <IconButton icon={"send"} onPress={() => handleSharePress()}></IconButton>
   );
 };
-const CommentButton = () => {
+
+export const CommentButton = () => {
   const handleCommentSectionPress = () => {
     alert("go to comment section");
   };
@@ -51,7 +54,7 @@ const RoomCard = (room: RoomCardProps) => {
         })
       }
     >
-      <Card.Cover source={{ uri: room.previewImageUri }}></Card.Cover>
+      <Card.Cover source={{ uri: room.previewImageUri, cache: "default" }}></Card.Cover>
       <Card.Content>
         <View
           style={{
@@ -60,7 +63,7 @@ const RoomCard = (room: RoomCardProps) => {
             justifyContent: "space-between",
           }}
         >
-          <Title>{room.name}</Title>
+          <Title style={{ alignSelf: "center" }}>{room.name}</Title>
 
           <View
             style={{
@@ -83,7 +86,18 @@ export default RoomCard;
 
 const styles = StyleSheet.create({
   card: {
-    marginBottom: "0.5%",
-    backgroundColor: "lightyellow",
+    marginBottom: "2%",
+    marginLeft: "2%",
+    marginRight: "2%",
+
+    backgroundColor: "white",
+    // shadowColor: "#000",
+    // shadowOffset: {
+    //   width: 0,
+    //   height: 2,
+    // },
+    // shadowOpacity: 0.23,
+    // shadowRadius: 2.62,
+    elevation: 2,
   },
 });

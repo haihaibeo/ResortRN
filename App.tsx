@@ -15,9 +15,13 @@ import Propfile from "./pages/Profile";
 import Favorites from "./pages/Favorites";
 import { color } from "react-native-reanimated";
 
+import { RoomProvider } from "./contexts/RoomContext";
+
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
 const BottomTab = createBottomTabNavigator();
+
+const URI: string = "https://resorthotel.azurewebsites.net";
 
 const getTabBarIcon = (name: string) => ({
   color,
@@ -31,47 +35,48 @@ export default function App() {
   const [isLoading, setLoading] = React.useState<boolean>(true);
 
   React.useEffect(() => {
-    //fetch('https://reactnative.dev/movies.json').then((response) => response.json).then((json) => json.movies)
   });
 
   return (
-    <NavigationContainer>
-      <BottomTab.Navigator>
-        <BottomTab.Screen
-          name="Home"
-          component={Home}
-          options={{
-            title: "Home",
-            tabBarIcon: getTabBarIcon("home"),
-          }}
-        />
+    <RoomProvider>
+      <NavigationContainer>
+        <BottomTab.Navigator>
+          <BottomTab.Screen
+            name="Home"
+            component={Home}
+            options={{
+              title: "Home",
+              tabBarIcon: getTabBarIcon("home"),
+            }}
+          />
 
-        <BottomTab.Screen
-          name="Rooms"
-          component={Rooms}
-          options={{
-            title: "All Rooms",
-            tabBarIcon: getTabBarIcon("search"),
-          }}
-        />
+          <BottomTab.Screen
+            name="Rooms"
+            component={Rooms}
+            options={{
+              title: "All Rooms",
+              tabBarIcon: getTabBarIcon("search"),
+            }}
+          />
 
-        <BottomTab.Screen
-          name="Faverites"
-          component={Favorites}
-          options={{
-            title: "My faverites",
-            tabBarIcon: getTabBarIcon("favorite"),
-          }}
-        />
-        <BottomTab.Screen
-          name="Profile"
-          component={Propfile}
-          options={{
-            title: "My Profile",
-            tabBarIcon: getTabBarIcon("settings"),
-          }}
-        />
-      </BottomTab.Navigator>
-    </NavigationContainer>
+          <BottomTab.Screen
+            name="Faverites"
+            component={Favorites}
+            options={{
+              title: "My faverites",
+              tabBarIcon: getTabBarIcon("favorite"),
+            }}
+          />
+          <BottomTab.Screen
+            name="Profile"
+            component={Propfile}
+            options={{
+              title: "My Profile",
+              tabBarIcon: getTabBarIcon("settings"),
+            }}
+          />
+        </BottomTab.Navigator>
+      </NavigationContainer>
+    </RoomProvider>
   );
 }

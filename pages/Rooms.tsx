@@ -6,113 +6,83 @@ import {
   createStackNavigator,
   StackScreenProps,
 } from "@react-navigation/stack";
-import { Avatar, Button, Card, Title, Paragraph, Searchbar } from "react-native-paper";
+import {
+  Searchbar,
+} from "react-native-paper";
 import { ScrollView } from "react-native-gesture-handler";
 import RoomCard from "../components/RoomCard";
 import RoomPage from "./RoomPage";
 import RoomList from "../components/RoomList";
+import { RoomContext } from "../contexts/RoomContext";
 
 const Stack = createStackNavigator();
 type StackRoomsProps = { Rooms: undefined; Room: undefined };
 
-export default class Home extends Component {
+export default class ShowRoom extends Component {
   render() {
     return (
       <Stack.Navigator>
-        <Stack.Screen name="Rooms" component={RoomsScreen}></Stack.Screen>
+        <Stack.Screen name="Rooms" component={AllRoomsScreen}></Stack.Screen>
         <Stack.Screen
           name="Room"
           component={RoomScreen}
-          options={{ title: "My room" }}
+          options={{ title: "" }}
         ></Stack.Screen>
       </Stack.Navigator>
     );
   }
 }
 
-const RoomsScreen = ({ navigation }: StackScreenProps<StackRoomsProps>) => {
+const AllRoomsScreen = ({ navigation }: StackScreenProps<StackRoomsProps>) => {
+  const context = React.useContext(RoomContext);
+  const allRooms = context.states?.rooms;
+
   const [searchQuery, setSearchQuery] = React.useState<string>("");
-  const [Rooms, setRooms] = React.useState<Array<RoomCardProps>>(AllRooms);
+  const [Rooms, setRooms] = React.useState(allRooms);
 
   const onChangeSearch = (query: string) => {
     setSearchQuery(query);
-    if (query.trim().length === 0)
-      setRooms(AllRooms);
-    else
-      setRooms(findRoomsByName(query.trim()));
-  }
+  };
+
+  React.useEffect(() => {
+    if (searchQuery.length === 0) setRooms(allRooms);
+    else {
+      if (allRooms !== undefined) {
+        setRooms(findRoomsByName(searchQuery.trim(), allRooms))
+      }
+    }
+  }, [searchQuery])
 
   return (
     <React.Fragment>
-      <Searchbar placeholder="Search" value={searchQuery} onChangeText={text => onChangeSearch(text)}></Searchbar>
-      <ScrollView style={styles.container}>
-        <RoomList rooms={Rooms}></RoomList>
-      </ScrollView>
+      <Searchbar
+        placeholder="Search"
+        value={searchQuery}
+        onChangeText={(text) => onChangeSearch(text)}
+      ></Searchbar>
+      <RoomList rooms={Rooms}></RoomList>
     </React.Fragment>
   );
 };
 
-const findRoomsByName = (name: string) : Array<RoomCardProps> =>{
-  const found = AllRooms.filter(room => room.name.includes(name));
-  console.log(found.length);
-  return found;
-}
+const findRoomsByName = (name: string, allRooms: FormatRoomData[]): FormatRoomData[] => {
+  return allRooms.filter((room) => room.name.includes(name));
+};
 
 export const RoomScreen = ({
   route,
   navigation,
 }: StackScreenProps<StackRoomsProps>) => {
-  const [newTitle, onChangeTitle] = React.useState<string|undefined>((route!.params as any).name);
+  const [newTitle, setNewTitle] = React.useState(
+    (route.params as FormatRoomData).name
+  );
+  const [id, setId] = React.useState((route.params as FormatRoomData).id);
 
-  navigation.setOptions({
-    title: newTitle === '' ? 'No title' : newTitle
-  })
+  React.useEffect(() => {
+    navigation.setOptions({
+      title: newTitle === "" ? "No title" : newTitle,
+    });
+  });
 
-  const { id }: any = route.params;
   return <RoomPage id={id}></RoomPage>;
 };
-
-const AllRooms: Array<RoomCardProps> = [
-  {
-    id: 1,
-    name: "Room 1",
-    previewImageUri: "https://picsum.photos/708",
-    description: "This is description for feature room 1",
-  },
-  {
-    id: 2,
-    name: "Room 2",
-    previewImageUri: "https://picsum.photos/709",
-    description: "This is description for feature room 2",
-  },
-  {
-    id: 3,
-    name: "Room 3",
-    previewImageUri: "https://picsum.photos/710",
-    description: "This is description for feature room 3",
-  },
-  {
-    id: 4,
-    name: "Room 4",
-    previewImageUri: "https://picsum.photos/711",
-    description: "This is description for feature room 3",
-  },
-  {
-    id: 5,
-    name: "Room 5",
-    previewImageUri: "https://picsum.photos/712",
-    description: "This is description for feature room 3",
-  },
-];
-
-const styles = StyleSheet.create({
-  container: {
-    alignContent: "center",
-    // marginTop: "5%",
-    backgroundColor: "lightgray",
-  },
-  card: {
-    marginBottom: "5%",
-    backgroundColor: "lightyellow",
-  },
-});

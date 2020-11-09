@@ -1,5 +1,5 @@
 type RoomCardProps = {
-  id: number;
+  id: string;
   name: string;
   previewImageUri: string;
   description?: string;
