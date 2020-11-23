@@ -22,7 +22,7 @@ type StackHomeProps = { rooms: FormatRoomData[] };
 const Home = () => {
   return (
     <Stack.Navigator>
-      <Stack.Screen name="Featuring" component={HomeScreen}></Stack.Screen>
+      <Stack.Screen name="Featuring" component={HomeScreen} options={{}}></Stack.Screen>
       <Stack.Screen name="Room" component={RoomScreen} options={{ title: "" }}></Stack.Screen>
     </Stack.Navigator>
   );

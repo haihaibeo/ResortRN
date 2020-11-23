@@ -16,7 +16,9 @@ import RoomList from "../components/RoomList";
 import { RoomContext } from "../contexts/RoomContext";
 
 const Stack = createStackNavigator();
-type StackRoomsProps = { Rooms: undefined; Room: undefined };
+type StackRoomsProps = {
+  Room: FormatRoomData;
+};
 
 export default class ShowRoom extends Component {
   render() {
@@ -45,13 +47,17 @@ const AllRoomsScreen = ({ navigation }: StackScreenProps<StackRoomsProps>) => {
   };
 
   React.useEffect(() => {
+    setRooms(context.states.rooms);
+  }, [context.states.rooms])
+
+  React.useEffect(() => {
     if (searchQuery.length === 0) setRooms(allRooms);
     else {
       if (allRooms !== undefined) {
         setRooms(findRoomsByName(searchQuery.trim(), allRooms))
       }
     }
-  }, [searchQuery])
+  }, [searchQuery, allRooms])
 
   return (
     <React.Fragment>

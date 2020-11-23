@@ -1,8 +1,8 @@
+import React from "react";
 import { useGestureHandlerRef } from "@react-navigation/stack";
-import React from "react"
 
 export const RoomContext = React.createContext<RoomContextProps>({} as RoomContextProps);
-const URI: string = "https://resorthotel.azurewebsites.net"
+const URI: string = "https://resorthotel.azurewebsites.net";
 
 type RoomContextProps = {
     states: Partial<RoomContextStates>;
@@ -41,6 +41,7 @@ export const RoomProvider: React.FC = ({ children }) => {
             const response: Response = await fetch(URI + "/api/room");
             const data: Array<FormatRoomData> = await response.json();
             setStates({ rooms: data, loading: false })
+            console.log(data);
         } catch (error) {
             console.log(error)
             throw new Error(error);
@@ -57,7 +58,8 @@ export const RoomProvider: React.FC = ({ children }) => {
             const ftRooms = rooms.filter(r => r.featured === true);
             setStates(s => ({
                 ...s,
-                featuredRooms: ftRooms
+                featuredRooms: ftRooms,
+                loading: false
             }))
         }
 
