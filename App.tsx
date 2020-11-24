@@ -18,7 +18,8 @@ import { StatusBar } from "react-native";
 
 import { RoomProvider } from "./contexts/RoomContext";
 import SnackBarNotif from "./components/SnackBarNotif";
-import { UserProvider } from "./contexts/UserContext";
+import { UserContext, UserProvider } from "./contexts/UserContext";
+import ModalLogin from "./components/ModalLogin";
 
 const BottomTab = createBottomTabNavigator();
 
@@ -33,17 +34,17 @@ const getTabBarIcon = (name: string) => ({
 }) => <MaterialIcons name={name} color={color} size={size} />;
 
 export default function App() {
-  const [isLoading, setLoading] = React.useState<boolean>(true);
+  const userCtx = React.useContext(UserContext);
 
   React.useEffect(() => {
-  });
+    userCtx.user === undefined ?? userCtx.toggleLoginModal(true);
+  }, []);
 
   return (
     <>
       <StatusBar barStyle="dark-content"></StatusBar>
       <RoomProvider>
         <UserProvider>
-
           <NavigationContainer>
             <BottomTab.Navigator>
               <BottomTab.Screen
@@ -82,6 +83,7 @@ export default function App() {
               />
             </BottomTab.Navigator>
           </NavigationContainer>
+          <ModalLogin></ModalLogin>
         </UserProvider>
       </RoomProvider>
     </>

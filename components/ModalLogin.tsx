@@ -36,15 +36,20 @@ type State = {
     user?: LoginResponse;
 }
 
-const ModalLogin = () => {
+
+const ModalLogin: React.FC = ({ }) => {
     const userContext = React.useContext(UserContext);
 
-    const [modalVisible, setModalVisible] = useState(false);
+    const [modalVisible, setModalVisible] = useState(userContext.modalVisible);
 
     const [form, setForm] = useState<FormProps>({ Email: "", Password: "" });
     const [registerCheck, setRegisterCheck] = useState(false);
     const [userState, setUserState] = useState<State>({ isLoading: false })
     const [errors, setErrors] = useState<string[]>([""]);
+
+    React.useEffect(() => {
+        setModalVisible(userContext.modalVisible)
+    }, [userContext.modalVisible])
 
     const loginAsync = async ({ Email, Password }: FormProps) => {
         if (Email.trim() === "" || Password.trim() === "") {
@@ -82,92 +87,87 @@ const ModalLogin = () => {
     }, [userState])
 
     return (
-        <View>
-            <Modal
-                animationType="slide"
-                transparent={false}
-                visible={modalVisible}
-                onShow={() => console.log("show")}
-                onDismiss={() => console.log("hided")}
-            >
-                <View style={styles.centeredView}>
-                    <TextInput
-                        label="Email" style={{ marginBottom: 10 }}
-                        value={form.Email}
-                        textContentType="emailAddress"
-                        mode="flat"
-                        onChangeText={text => setForm(form => ({ ...form, Email: text.trim() }))}></TextInput>
+        <Modal
+            animationType="slide"
+            transparent={false}
+            visible={modalVisible}
+            onShow={() => console.log("show")}
+            onDismiss={() => console.log("hided")}
+        >
+            <View style={styles.centeredView}>
+                <TextInput
+                    label="Email" style={{ marginBottom: 10 }}
+                    value={form.Email}
+                    textContentType="emailAddress"
+                    mode="flat"
+                    onChangeText={text => setForm(form => ({ ...form, Email: text.trim() }))}></TextInput>
 
+                <TextInput
+                    label="Password" style={{ marginBottom: 10 }}
+                    value={form.Password}
+                    secureTextEntry={true}
+                    textContentType="password"
+                    mode="flat"
+                    onChangeText={text => setForm(form => ({ ...form, Password: text }))}></TextInput>
+
+                {registerCheck &&
                     <TextInput
-                        label="Password" style={{ marginBottom: 10 }}
-                        value={form.Password}
+                        label="Confirm password" style={{ marginBottom: 10 }}
+                        mode="flat"
+                        value={form.ConfirmPassword}
                         secureTextEntry={true}
                         textContentType="password"
-                        mode="flat"
-                        onChangeText={text => setForm(form => ({ ...form, Password: text }))}></TextInput>
+                        onChangeText={text => setForm(form => ({ ...form, ConfirmPassword: text }))}
+                    ></TextInput>}
 
-                    {registerCheck &&
-                        <TextInput
-                            label="Confirm password" style={{ marginBottom: 10 }}
-                            mode="flat"
-                            value={form.ConfirmPassword}
-                            secureTextEntry={true}
-                            textContentType="password"
-                            onChangeText={text => setForm(form => ({ ...form, ConfirmPassword: text }))}
-                        ></TextInput>}
+                {errors.map((value, index) => <Text style={{ color: "red" }} key={index}>{value}</Text>)}
 
-                    {errors.map((value, index) => <Text style={{ color: "red" }} key={index}>{value}</Text>)}
-
-                    <Checkbox.Item style={{ marginLeft: 0, paddingHorizontal: 0 }}
-                        label="I don't have an account"
-                        color="#2196F3"
-                        labelStyle={{ color: "#2196F3" }}
-                        status={registerCheck ? "checked" : "unchecked"}
-                        onPress={() => setRegisterCheck(!registerCheck)}
-                    ></Checkbox.Item>
+                <Checkbox.Item style={{ marginLeft: 0, paddingHorizontal: 0 }}
+                    label="I don't have an account"
+                    color="#2196F3"
+                    labelStyle={{ color: "#2196F3" }}
+                    status={registerCheck ? "checked" : "unchecked"}
+                    onPress={() => setRegisterCheck(!registerCheck)}
+                ></Checkbox.Item>
 
 
-                    {userState.isLoading ? <ActivityIndicator color="#2196F3"></ActivityIndicator> :
-                        <>
-                            <TouchableHighlight
-                                style={{ ...styles.openButton, backgroundColor: "#2196F3", marginBottom: 10 }}
-                                underlayColor="#0067b8"
-                                onPress={() => {
-                                    setErrors([]);
-                                    setUserState(states => ({ ...states, isLoading: true }))
-                                    if (registerCheck === false) {
-                                        loginAsync({ Email: form.Email, Password: form.Password }).then((result) => {
-                                            if (result?.errors === undefined) {
-                                                setTimeout(() => {
-                                                    setModalVisible(false);
-                                                }, 2000)
-                                            }
-                                            else {
-                                                setErrors(result?.errors!);
-                                                setModalVisible(true);
-                                            }
-                                        });
-                                    }
-                                }}
-                            >
-                                <Text style={styles.textStyle}> {registerCheck ? "Register" : "Sign in"}</Text>
-                            </TouchableHighlight>
+                {userState.isLoading ? <ActivityIndicator color="#2196F3"></ActivityIndicator> :
+                    <>
+                        <TouchableHighlight
+                            style={{ ...styles.openButton, backgroundColor: "#2196F3", marginBottom: 10 }}
+                            underlayColor="#0067b8"
+                            onPress={() => {
+                                setErrors([]);
+                                setUserState(states => ({ ...states, isLoading: true }))
+                                if (registerCheck === false) {
+                                    loginAsync({ Email: form.Email, Password: form.Password }).then((result) => {
+                                        if (result?.errors === undefined) {
+                                            setTimeout(() => {
+                                                userContext.toggleLoginModal(false);
+                                            }, 2000)
+                                        }
+                                        else {
+                                            setErrors(result?.errors!);
+                                            userContext.toggleLoginModal(true);
+                                        }
+                                    });
+                                }
+                            }}
+                        >
+                            <Text style={styles.textStyle}> {registerCheck ? "Register" : "Sign in"}</Text>
+                        </TouchableHighlight>
 
-                            <TouchableHighlight
-                                style={{ ...styles.openButton, backgroundColor: "white", marginBottom: 10 }}
-                                underlayColor="#c4c4c4"
-                                onPress={() => setModalVisible(false)}
-                            >
-                                <Text style={{ ...styles.textStyle, color: "#2196F3" }}>Go back</Text>
-                            </TouchableHighlight>
-                        </>
-                    }
-                </View>
-
-            </Modal>
-
-            <Setting setting="Login With Modal" iconName="exit-to-app" onPressHandle={() => setModalVisible(true)}></Setting>
-        </View>
+                        <TouchableHighlight
+                            style={{ ...styles.openButton, backgroundColor: "white", marginBottom: 10 }}
+                            underlayColor="#c4c4c4"
+                            onPress={() => userContext.toggleLoginModal(false)}
+                        >
+                            <Text style={{ ...styles.textStyle, color: "#2196F3" }}>Close</Text>
+                        </TouchableHighlight>
+                    </>
+                }
+            </View>
+        </Modal>
     );
 }
 

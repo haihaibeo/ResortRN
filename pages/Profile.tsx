@@ -1,7 +1,7 @@
-import { StackActions } from "@react-navigation/native";
+import { StackActions, useNavigation } from "@react-navigation/native";
 import { createStackNavigator, StackScreenProps } from "@react-navigation/stack";
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, GestureResponderEvent, Modal, Systrace } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, GestureResponderEvent, Modal, Systrace, Alert } from "react-native";
 import { ScrollView, TouchableHighlight } from "react-native-gesture-handler";
 import { Button, TextInput, Checkbox } from "react-native-paper";
 import { Value } from "react-native-reanimated";
@@ -19,44 +19,62 @@ const GetIcon = (name: string) => ({
 }) => <MaterialIcons name={name} color={color} size={size} />;
 
 const Stack = createStackNavigator();
-const RootStack = createStackNavigator();
 
 
 const Profile: React.FC<{}> = ({ }) => {
   return (
     <Stack.Navigator>
       <Stack.Screen name="Settings" component={ProfileScreen}></Stack.Screen>
-      <Stack.Screen name="LoginModal" component={LoginScreen} options={{ headerShown: false }}></Stack.Screen>
+      <Stack.Screen name="Account" component={AccountScreen}></Stack.Screen>
     </Stack.Navigator>
   );
 };
 
-const LoginScreen = ({ navigation }: any) => {
-  return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text style={{ fontSize: 30 }}>This is a modal!</Text>
-      <Button onPress={() => navigation.goBack()}>Dismiss</Button>
-    </View>
-  );
+const AccountScreen = ({ navigation, route }: any) => {
+  const userContext = React.useContext(UserContext);
+  React.useEffect(() => { console.log(userContext.user?.userId) }, [])
+  return <Text>USER_ID: {userContext.user?.userId}</Text>
 }
 
-const ProfileScreen = ({ navigation }: any) => {
+const ProfileScreen = () => {
   const userContext = React.useContext(UserContext);
   const [user, setUser] = React.useState(userContext.user);
+  const navigation = useNavigation();
 
   React.useEffect(() => {
     setUser(userContext.user);
   }, [userContext.user])
 
+  const signOut = () => {
+    userContext.updateUser(undefined as any);
+  }
+
   return (
     <ScrollView style={styles.container}>
-      <Setting setting="Your bookings" iconName="bookmark-border"></Setting>
-      <Setting setting="Account" iconName="person"></Setting>
+      {user !== undefined ?
+        <>
+          <Setting setting="Your bookings" iconName="bookmark-border"></Setting>
+          <Setting setting="Account" iconName="person" onPressHandle={() => { navigation.navigate("Account") }}></Setting>
+        </> : <></>
+      }
+
       <Setting setting="Privacy" iconName="security"></Setting>
       <Setting setting="Help" iconName="help-outline"></Setting>
-      {
-        user !== undefined ? <Setting setting="Sign Out" iconName="exit-to-app" onPressHandle={() => userContext.updateUser(undefined as any)}></Setting>
-          : <ModalLogin></ModalLogin>
+
+      {user !== undefined ?
+        <Setting setting="Sign Out" iconName="exit-to-app" onPressHandle={() => Alert.alert("Sign out?", "",
+          [
+            {
+              text: "Cancel"
+            }, {
+              text: "OK",
+              onPress: () => signOut()
+            }
+          ])} />
+        :
+        <>
+          <Setting setting="Login" iconName="exit-to-app" onPressHandle={() => { userContext.toggleLoginModal(true) }}></Setting>
+        </>
       }
     </ScrollView>
   );

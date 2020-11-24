@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, Text, View, Image } from "react-native";
+import { StyleSheet, Text, View, Image, Alert } from "react-native";
 import { ScrollView, TouchableHighlight } from "react-native-gesture-handler";
 import { RoomContext } from "../contexts/RoomContext";
 import Carousel, { Pagination } from "react-native-snap-carousel";
@@ -128,7 +128,16 @@ const RoomPage = ({ id }: RoomPageProp) => {
             <TouchableHighlight
               style={{ ...styles.openButton, marginBottom: 10 }}
               underlayColor="#0067b8"
-              onPress={() => book()}
+              onPress={() => Alert.alert("Confirm", "Do you want to book this room?",
+                [
+                  {
+                    text: "Cancel",
+                  },
+                  {
+                    text: "OK",
+                    onPress: () => { book() }
+                  },
+                ])}
             >
               <Text style={{ ...styles.textStyle, color: "white" }}>Book</Text>
             </TouchableHighlight>
@@ -138,7 +147,7 @@ const RoomPage = ({ id }: RoomPageProp) => {
         <TouchableHighlight
           style={{ ...styles.openButton, marginBottom: 10 }}
           underlayColor="#0067b8"
-          onPress={() => alert("Open login modal")}
+          onPress={() => { userContext.toggleLoginModal(true) }}
         >
           <Text style={{ ...styles.textStyle, color: "white" }}>Login to book</Text>
         </TouchableHighlight>
