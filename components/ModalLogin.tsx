@@ -86,6 +86,11 @@ const ModalLogin: React.FC = ({ }) => {
         }
     }, [userState])
 
+    // delete after
+    React.useEffect(() => {
+        loginAsync({ Email: "haihaibeo", Password: "Phamngochai1998!" })
+    }, [])
+
     return (
         <Modal
             animationType="slide"

@@ -13,3 +13,8 @@ type FormatRoomData = {
   images: string[];
   id: string;
 };
+
+type ResponseMessage = {
+  message: string[] | string | null;
+  errors: string[] | string | null;
+}

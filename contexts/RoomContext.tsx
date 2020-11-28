@@ -41,7 +41,6 @@ export const RoomProvider: React.FC = ({ children }) => {
             const response: Response = await fetch(URI + "/api/room");
             const data: Array<FormatRoomData> = await response.json();
             setStates({ rooms: data, loading: false })
-            console.log(data);
         } catch (error) {
             console.log(error)
             throw new Error(error);

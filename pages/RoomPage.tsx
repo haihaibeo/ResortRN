@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { StyleSheet, Text, View, Image, Alert } from "react-native";
-import { ScrollView, TouchableHighlight } from "react-native-gesture-handler";
+import { FlatList, ScrollView, TouchableHighlight } from "react-native-gesture-handler";
 import { RoomContext } from "../contexts/RoomContext";
 import Carousel, { Pagination } from "react-native-snap-carousel";
 import { SlideFromRightIOS } from "@react-navigation/stack/lib/typescript/src/TransitionConfigs/TransitionPresets";
@@ -8,6 +8,9 @@ import { ActivityIndicator, Button, Card, List, Paragraph } from "react-native-p
 import { Dimensions } from "react-native";
 import { CommentButton, LikeButton, ShareButton } from "../components/RoomCard";
 import { UserContext } from "../contexts/UserContext";
+import { yellowA700 } from "react-native-paper/lib/typescript/src/styles/colors";
+
+const URI: string = "https://resorthotel.azurewebsites.net";
 
 const SLIDER_WIDTH = Dimensions.get('window').width;
 const ITEM_WIDTH = Math.round(SLIDER_WIDTH);
@@ -19,6 +22,18 @@ type RoomPageProp = {
 
 type ImageCarouselProps = {
   imgs: string[];
+}
+
+type ReservationHistory = {
+  id: string;
+  roomId: string;
+  userId: string;
+  createdTime: string;
+}
+
+type UserCanDo = {
+  Book: boolean;
+  Cancel: boolean;
 }
 
 const ImageCarousel = ({ imgs }: ImageCarouselProps) => {
@@ -63,20 +78,90 @@ const ImageCarousel = ({ imgs }: ImageCarouselProps) => {
   );
 }
 
+const checkUserCanDoAsync = async (roomId: string, userId: string): Promise<UserCanDo> => {
+  let userCanDo: UserCanDo = { Book: false, Cancel: false };
+  const response: Response = await fetch(URI + "/api/reservation/check-room/" + roomId, { method: "GET" });
+  if (response.status === 200) {
+    const data: ReservationHistory = await response.json();
+
+    if (data.id === null) {
+      userCanDo.Book = true;
+      userCanDo.Cancel = false;
+      return userCanDo;
+    }
+
+    if (data.userId === userId) {
+      userCanDo.Book = false;
+      userCanDo.Cancel = true;
+    } else {
+      userCanDo.Book = false;
+      userCanDo.Cancel = false;
+    }
+  }
+
+  return userCanDo;
+}
+
 const RoomPage = ({ id }: RoomPageProp) => {
   const context = React.useContext(RoomContext);
   const userContext = React.useContext(UserContext);
   const [room, setRoom] = React.useState(context.states.rooms?.find(r => r.id === id));
 
-  const [bookingLoading, setBookingLoading] = React.useState(false);
+  const [bookingLoading, setBookingLoading] = React.useState(true);
+
+  const [userCanDo, setUserCanDo] = useState<UserCanDo>({ Book: false, Cancel: false });
 
   const book = async () => {
-    setTimeout(() => {
-      console.log("booked");
-    }, 500);
+    let myHeaders = new Headers();
+    myHeaders.append("Authorization", "Bearer " + userContext.user?.token);
+    myHeaders.append("Content-Type", "application/json");
+
+    const raw = JSON.stringify({ "roomId": id });
+
+    const requestOptions = {
+      method: 'POST',
+      headers: myHeaders,
+      body: raw,
+    };
+
+    const response: Response = await fetch("https://resorthotel.azurewebsites.net/api/reservation", requestOptions);
+    if (response.status === 200) {
+      let msg: ResponseMessage = await response.json();
+      console.log(msg);
+    }
+
+    checkUserCanDoAsync(id, userContext.user!.userId).then(res => {
+      setUserCanDo(res);
+    });
   }
 
-  console.log(room);
+  const cancelBook = async () => {
+    let myHeaders = new Headers();
+    myHeaders.append("Authorization", "Bearer " + userContext.user?.token);
+
+    const requestOptions = {
+      method: 'DELETE',
+      headers: myHeaders,
+    };
+
+    const response: Response = await fetch("https://resorthotel.azurewebsites.net/api/reservation/" + id, requestOptions);
+    if (response.status === 200) {
+      const msg: ResponseMessage = await response.json();
+      console.log(msg);
+    }
+
+    checkUserCanDoAsync(id, userContext.user!.userId).then(res => {
+      setUserCanDo(res);
+    });
+  }
+
+  React.useEffect(() => {
+    if (userContext.user !== undefined)
+      checkUserCanDoAsync(id, userContext.user.userId).then(res => {
+        setUserCanDo(res);
+        setBookingLoading(false);
+      });
+  }, [userContext.user]);
 
   return (
     <>
@@ -125,22 +210,60 @@ const RoomPage = ({ id }: RoomPageProp) => {
           {bookingLoading ?
             <ActivityIndicator color="#2196F3"></ActivityIndicator>
             :
-            <TouchableHighlight
-              style={{ ...styles.openButton, marginBottom: 10 }}
-              underlayColor="#0067b8"
-              onPress={() => Alert.alert("Confirm", "Do you want to book this room?",
-                [
-                  {
-                    text: "Cancel",
-                  },
-                  {
-                    text: "OK",
-                    onPress: () => { book() }
-                  },
-                ])}
-            >
-              <Text style={{ ...styles.textStyle, color: "white" }}>Book</Text>
-            </TouchableHighlight>
+            <>
+              {userCanDo.Cancel === true ?
+                <TouchableHighlight
+                  style={{ ...styles.openButton, marginBottom: 10, backgroundColor: "#b51414" }}
+                  underlayColor="#700c0c"
+                  onPress={() => Alert.alert("Confirm", "Do you want to cancel this room?",
+                    [
+                      {
+                        text: "Cancel",
+                      },
+                      {
+                        text: "OK",
+                        onPress: () => {
+                          setBookingLoading(true);
+                          cancelBook().finally(() => setBookingLoading(false));
+                        }
+                      },
+                    ])}
+                >
+                  <Text style={{ ...styles.textStyle, color: "white" }}>Cancel book</Text>
+                </TouchableHighlight> : <></>
+              }
+
+              {userCanDo.Book === true ?
+                <TouchableHighlight
+                  style={{ ...styles.openButton, marginBottom: 10 }}
+                  underlayColor="#0067b8"
+                  onPress={() => Alert.alert("Confirm", "Do you want to book this room?",
+                    [
+                      {
+                        text: "Cancel",
+                      },
+                      {
+                        text: "OK",
+                        onPress: () => {
+                          setBookingLoading(true);
+                          book().finally(() => setBookingLoading(false));
+                        }
+                      },
+                    ])}
+                >
+                  <Text style={{ ...styles.textStyle, color: "white" }}>Book</Text>
+                </TouchableHighlight> : <></>
+              }
+
+              {userCanDo.Book === false && userCanDo.Cancel === false ?
+                <TouchableHighlight
+                  style={{ ...styles.openButton, marginBottom: 10, backgroundColor: "gray" }}
+                  underlayColor="gray"
+                >
+                  <Text style={{ ...styles.textStyle, color: "white" }}>Room Not Available</Text>
+                </TouchableHighlight>
+                : <></>}
+            </>
           }
         </>
         :
