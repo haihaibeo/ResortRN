@@ -18,3 +18,10 @@ type ResponseMessage = {
   message: string[] | string | null;
   errors: string[] | string | null;
 }
+
+
+type UserState = {
+    userId: string;
+    token: string;
+    userName: string;
+}

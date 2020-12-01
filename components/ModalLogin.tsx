@@ -22,7 +22,7 @@ type LoginResponse = {
 
 type LoginResult = {
     errors: string[];
-    user: LoginResponse;
+    user: UserState;
 }
 
 enum ActionType {
@@ -33,7 +33,7 @@ enum ActionType {
 
 type State = {
     isLoading: boolean;
-    user?: LoginResponse;
+    user?: UserState;
 }
 
 
@@ -64,7 +64,7 @@ const ModalLogin: React.FC = ({ }) => {
 
             const response: Response = await fetch(URI + "/login", { method: "POST", body: raw, headers: headers });
             if (response.status === 200) {
-                const data: LoginResponse = await response.json();
+                const data: UserState = await response.json();
                 setUserState({ isLoading: false, user: data });
                 return { user: data } as LoginResult;
             }
@@ -82,7 +82,7 @@ const ModalLogin: React.FC = ({ }) => {
 
     React.useEffect(() => {
         if (userState.user !== undefined) {
-            return userContext.updateUser({ userId: userState.user?.userId, token: userState.user?.token })
+            return userContext.updateUser(userState.user)
         }
     }, [userState])
 

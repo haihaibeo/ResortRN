@@ -124,7 +124,7 @@ const RoomPage = ({ id }: RoomPageProp) => {
       body: raw,
     };
 
-    const response: Response = await fetch("https://resorthotel.azurewebsites.net/api/reservation", requestOptions);
+    const response: Response = await fetch(URI + "/api/reservation", requestOptions);
     if (response.status === 200) {
       let msg: ResponseMessage = await response.json();
       console.log(msg);
@@ -144,7 +144,7 @@ const RoomPage = ({ id }: RoomPageProp) => {
       headers: myHeaders,
     };
 
-    const response: Response = await fetch("https://resorthotel.azurewebsites.net/api/reservation/" + id, requestOptions);
+    const response: Response = await fetch(URI + "/api/reservation/" + id, requestOptions);
     if (response.status === 200) {
       const msg: ResponseMessage = await response.json();
       console.log(msg);

@@ -33,7 +33,12 @@ const Profile: React.FC<{}> = ({ }) => {
 const AccountScreen = ({ navigation, route }: any) => {
   const userContext = React.useContext(UserContext);
   React.useEffect(() => { console.log(userContext.user?.userId) }, [])
-  return <Text>USER_ID: {userContext.user?.userId}</Text>
+  return (
+    <>
+      <Text>USER_ID: {userContext.user?.userId}</Text>
+      <Text>USER_USERNAME: {userContext.user?.userName}</Text>
+    </>
+  )
 }
 
 const ProfileScreen = () => {

@@ -9,11 +9,6 @@ type UserContextProps = {
     modalVisible: boolean;
 }
 
-type UserState = {
-    userId: string;
-    token: string;
-}
-
 export const UserContext = React.createContext<UserContextProps>({} as UserContextProps)
 
 export const UserProvider: React.FC = ({ children }) => {
